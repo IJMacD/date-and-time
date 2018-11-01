@@ -25,10 +25,6 @@ function toDeg (r) {
 export default class SunGraph extends Component {
 
   shouldComponentUpdate (nextProps) {
-    if (!this.props.location) {
-      return false;
-    }
-
     if (!this.props.location && nextProps.location) {
       return true;
     }
@@ -43,7 +39,19 @@ export default class SunGraph extends Component {
     const height = 80;
 
     if (!this.props.location) {
-      return null;
+      return (
+        <Svg
+          width={width}
+          height={height}
+        >
+          <Svg.Path
+            id="horizon"
+            d={`M 0 ${height/2} H ${width}`}
+            stroke="#999"
+            fillOpacity="0"
+          />
+        </Svg>
+      );
     }
 
     const noon = new Date(this.props.date);

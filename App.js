@@ -1,10 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import moment from 'moment';
 import Expo from 'expo';
-import SunCalc from 'suncalc';
-import ProgressCircle from 'react-native-progress-circle';
 import SunGraph from './SunGraph';
+import MoonChart from './MoonChart';
 
 const { Localization } = Expo.DangerZone;
 
@@ -45,50 +44,33 @@ export default class App extends React.Component {
   render() {
     const d = moment(this.state.now);
 
-    let mf, mp;
-    if (this.state.loc) {
-      const today = d.toDate();
-      const moon = SunCalc.getMoonIllumination(today);
-      mf = moon.fraction;
-      mp = moon.phase;
-    }
-
     return (
-      <View style={styles.container}>
-        <View style={styles.local}>
-          <Text style={styles.localTime}>{d.format("Y-MM-DD")}</Text>
-          <Text style={styles.localTime}>{d.format("HH:mm:ss")}</Text>
-          <Text style={styles.localZone}>{`${this.state.tz} ${d.format("Z")}`}</Text>
-        </View>
-        <View style={styles.utc}>
-          <Text style={styles.utcLabel}>UTC</Text>
-          <Text style={styles.utcTime}>{d.toISOString()}</Text>
-          <Text style={styles.utcTime}>{d.utc().format("GGGG-[W]WW-E")}</Text>
-        </View>
-        <View style={styles.sun}>
-          <Text style={styles.sunLabel}>Sun</Text>
-          <View style={{display:"flex", alignItems:"center"}}>
-            <SunGraph date={new Date(this.state.now)} location={this.state.loc} />
+      <ScrollView>
+        <View style={styles.container}>
+          <View style={styles.local}>
+            <Text style={styles.localTime}>{d.format("Y-MM-DD")}</Text>
+            <Text style={styles.localTime}>{d.format("HH:mm:ss")}</Text>
+            <Text style={styles.localZone}>{`${this.state.tz} ${d.format("Z")}`}</Text>
+          </View>
+          <View style={styles.utc}>
+            <Text style={styles.utcLabel}>UTC</Text>
+            <Text style={styles.utcTime}>{d.toISOString()}</Text>
+            <Text style={styles.utcTime}>{d.utc().format("GGGG-[W]WW-E")}</Text>
+          </View>
+          <View style={styles.sun}>
+            <Text style={styles.sunLabel}>Sun</Text>
+            <View style={{display:"flex", alignItems:"center"}}>
+              <SunGraph date={new Date(this.state.now)} location={this.state.loc} />
+            </View>
+          </View>
+          <View style={styles.moon}>
+            <Text style={styles.moonLabel}>Moon</Text>
+            <View style={styles.moonProgress}>
+              <MoonChart date={new Date(this.state.now)} />
+            </View>
           </View>
         </View>
-        <View style={styles.moon}>
-          <Text style={styles.moonLabel}>Moon</Text>
-          <View style={styles.moonProgress}>
-          { mp && (
-              <ProgressCircle
-                percent={mp*100}
-                radius={50}
-                borderWidth={8}
-                color="#000"
-                shadowColor="#999"
-                bgColor="#fff"
-              >
-                  <Text style={styles.moonTime}>{(mf * 100).toFixed(4)}%</Text>
-              </ProgressCircle>
-          )}
-          </View>
-        </View>
-      </View>
+      </ScrollView>
     );
   }
 }
