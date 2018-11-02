@@ -26,6 +26,9 @@
     "ios": {
       "supportsTablet": true
     },
-    "githubUrl": "https://github.com/IJMacD/date-and-time"
+    "githubUrl": "https://github.com/IJMacD/date-and-time",
+    "android": {
+      "package": "com.ijmacd.dateandtime"
+    }
   }
 }

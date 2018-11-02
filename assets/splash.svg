@@ -29,9 +29,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.175"
-     inkscape:cx="-625.73566"
-     inkscape:cy="1229.6489"
+     inkscape:zoom="0.0875"
+     inkscape:cx="-1756.5977"
+     inkscape:cy="1235.6577"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -77,7 +77,7 @@
      transform="translate(0,347.52503)">
     <g
        id="g1819"
-       transform="matrix(2.1764706,0,0,2.1764706,-47.579519,-211.99308)">
+       transform="matrix(2.1764706,0,0,2.1764706,-47.579519,-294.01404)">
       <circle
          inkscape:export-ydpi="67.760002"
          inkscape:export-xdpi="67.760002"
@@ -103,28 +103,28 @@
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:50.79999924px;line-height:1.25;font-family:Bahnschrift;-inkscape-font-specification:Bahnschrift;text-align:center;letter-spacing:0px;word-spacing:0px;text-transform:uppercase;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="163.93417"
-       y="80.797562"
+       y="-1.2232906"
        id="text1823"><tspan
          sodipodi:role="line"
          id="tspan1821"
          x="163.93417"
-         y="80.797562"
+         y="-1.2232906"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bahnschrift;-inkscape-font-specification:Bahnschrift;text-align:center;text-transform:uppercase;text-anchor:middle;stroke-width:0.26458332">Date and</tspan><tspan
          sodipodi:role="line"
          x="163.93417"
-         y="144.29756"
+         y="62.276707"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bahnschrift;-inkscape-font-specification:Bahnschrift;text-align:center;text-anchor:middle;stroke-width:0.26458332"
          id="tspan1825">Time</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:25.39999962px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       style="font-style:normal;font-weight:normal;font-size:25.39999962px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#808080;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="111.74512"
-       y="270.466"
+       y="188.4449"
        id="text1829"><tspan
          sodipodi:role="line"
          id="tspan1827"
          x="111.74512"
-         y="270.466"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bahnschrift;-inkscape-font-specification:Bahnschrift;stroke-width:0.26458332;fill:#808080;">@IJMacD</tspan></text>
+         y="188.4449"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bahnschrift;-inkscape-font-specification:Bahnschrift;fill:#808080;stroke-width:0.26458332">@IJMacD</tspan></text>
   </g>
 </svg>

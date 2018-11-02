@@ -2,18 +2,9 @@ import React, { Component } from 'react';
 import { Svg } from 'expo';
 import SunCalc from 'suncalc';
 import moment from 'moment';
+import { getBSpline, pointsToPolyline, controlPointsToBezier } from './bezier';
 
-function dateToX (date, width) {
-  return (date.getHours() + date.getMinutes() / 60) / 24 * width;
-}
-
-function altToY (altitude, height) {
-  return (height / 2)-altitude/(Math.PI/2)*(height/2);
-}
-
-function toDeg (r) {
-  return r / Math.PI * 180;
-}
+const CHEAP_PATH = false;
 
 /**
  * Props for SunGraph
@@ -72,27 +63,18 @@ export default class SunGraph extends Component {
     const ssx = dateToX(ss.toDate(), width);
     const snx = dateToX(sn.toDate(), width);
 
-    const sHeight = snp.altitude / (Math.PI / 2) * height;
-    const sOffset = height - sHeight;
-
-    const sps = [];
+    const points = [];
     const d = new Date(this.props.date);
     d.setHours(0, 0, 0);
     for(let i = 0; i <= 24; i++) {
       d.setHours(i);
       const p = SunCalc.getPosition(d, latitude, longitude);
       const y = altToY(p.altitude, height);
-
-      if (i == 0) {
-        sps.push("M 0 " + y);
-      } else if (i == 24) {
-        sps.push(`L ${width} ${y}`);
-      } else {
-        sps.push(`L ${(i/24)*width} ${y}`);
-      }
+      const x = i/24 * width;
+      points.push([x, y]);
     }
 
-    const solarPath = sps.join(" ");
+    const solarPath = CHEAP_PATH ? pointsToPolyline(points) : controlPointsToBezier(getBSpline(points));
 
     return (
       <Svg
@@ -111,37 +93,37 @@ export default class SunGraph extends Component {
           stroke="#88f"
           fillOpacity="0"
         />
-        <Svg.Path
-          id="daylength-line"
-          d={`M ${srx} ${height - 4} v 4 H ${ssx} v -4`}
-          stroke="#f80"
-          fillOpacity={0}
-        />
+        <Svg.Text
+          id="sunalt-text"
+          x={4}
+          y={altToY(sp.altitude, height)}
+          fill="#f80"
+        >{toDeg(sp.altitude).toFixed(1)}°</Svg.Text>
         <Svg.Text
           id="sunrise-text"
-          x={srx - 16}
-          y={height/2 + 12}
+          x={srx - 12}
+          y={height/2 + 18}
           fill="#f80"
         >
-          {sr.format("HH:mm")}
+          {Math.round(toDeg(srp.azimuth+Math.PI))}°
           <Svg.TSpan
-            x={srx - 12}
+            x={srx - 16}
             dy="1.2em"
             fill="#f80"
-          >{Math.round(toDeg(srp.azimuth+Math.PI))}°</Svg.TSpan>
+          >{sr.format("HH:mm")}</Svg.TSpan>
         </Svg.Text>
         <Svg.Text
           id="sunset-text"
-          x={ssx - 16}
-          y={height/2 + 12}
+          x={ssx - 12}
+          y={height/2 + 18}
           fill="#f80"
         >
-          {ss.format("HH:mm")}
+          {Math.round(toDeg(ssp.azimuth+Math.PI))}°
           <Svg.TSpan
-            x={ssx - 12}
+            x={ssx - 16}
             dy="1.2em"
             fill="#f80"
-          >{Math.round(toDeg(ssp.azimuth+Math.PI))}°</Svg.TSpan>
+          >{ss.format("HH:mm")}</Svg.TSpan>
         </Svg.Text>
         <Svg.Text
           id="solarnoon-text"
@@ -151,12 +133,13 @@ export default class SunGraph extends Component {
         >
           {sn.format("HH:mm")}
           <Svg.TSpan
-            x={snx - 40}
+            x={snx - 44}
+            dy="0.6em"
             fill="#f80"
-          >{Math.round(toDeg(snp.altitude))}°</Svg.TSpan>
+          >{toDeg(snp.altitude).toFixed(1)}°</Svg.TSpan>
           <Svg.TSpan
             x={snx - 12}
-            dy="1.2em"
+            dy="0.6em"
             fill="#f80"
           >{Math.round(toDeg(snp.azimuth+Math.PI))}°</Svg.TSpan>
         </Svg.Text>
@@ -166,6 +149,12 @@ export default class SunGraph extends Component {
           y={height - 1}
           fill="#f80"
         >{`${dl.hours()}:${padStart(dl.minutes())}:${padStart(dl.seconds())}`}</Svg.Text>
+        <Svg.Path
+          id="daylength-line"
+          d={`M ${srx} ${height - 4} v 4 H ${ssx} v -4`}
+          stroke="#f80"
+          fillOpacity={0}
+        />
         <Svg.Circle
           id="sun"
           cx={dateToX(this.props.date, width)}
@@ -176,6 +165,18 @@ export default class SunGraph extends Component {
       </Svg>
     );
   }
+}
+
+function dateToX (date, width) {
+  return (date.getHours() + date.getMinutes() / 60) / 24 * width;
+}
+
+function altToY (altitude, height) {
+  return (height / 2)-altitude/(Math.PI/2)*(height/2);
+}
+
+function toDeg (r) {
+  return r / Math.PI * 180;
 }
 
 function padStart (n, c="0") {
