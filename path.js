@@ -1,7 +1,25 @@
 import { matrix_invert, matrix_mulitply } from './matrix';
 
+const PATH_DETAIL = 1;
+
 const m141 = generate141Matrix(25);
 const m_inv = matrix_invert(m141);
+
+/**
+ * @param {number[][]} points
+ * @returns {string}
+ */
+export function pointsToPath (points, detail = PATH_DETAIL) {
+  switch (detail) {
+    case 0:
+      return pointsToPolyline(points);
+    case 1:
+      return controlPointsToBezier(getBSpline(points));
+    case 2:
+    default:
+      return controlPointsToBezier(getBSpline(getReverseBSpline(points)));
+  }
+}
 
 /**
  *

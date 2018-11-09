@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import { Svg } from 'expo';
 import SunCalc from 'suncalc';
 import moment from 'moment';
-import { getBSpline, pointsToPolyline, controlPointsToBezier } from './bezier';
-
-const CHEAP_PATH = false;
+import { pointsToPath } from './path';
 
 /**
  * Props for SunGraph
@@ -28,24 +26,39 @@ export default class SunGraph extends Component {
   render () {
     const width = 300;
     const height = 80;
+    const { date } = this.props;
+
+    const gutterLeft = 32;
+    const gutterTop = 12;
+    const gutterRight = 20;
+    const gutterBottom = 12;
+
+    const timeMarkersD = Array(25).fill(0).map((x,i) => `M ${i/24 * width} ${height/2} v 4`).join(" ");
 
     if (!this.props.location) {
       return (
         <Svg
-          width={width}
-          height={height}
+          width={width+gutterLeft+gutterRight}
+          height={height+gutterTop+gutterBottom}
         >
           <Svg.Path
             id="horizon"
-            d={`M 0 ${height/2} H ${width}`}
+            d={`M ${gutterLeft} ${height/2+gutterTop} h ${width}`}
             stroke="#999"
             fillOpacity="0"
           />
+          <Svg.Path
+            id="time-markers"
+            d={timeMarkersD}
+            stroke="#999"
+            fillOpacity="0"
+            transform={`translate(${gutterLeft}, ${gutterTop})`} />
         </Svg>
       );
     }
 
-    const noon = new Date(this.props.date);
+    // clone to mutate
+    const noon = new Date(date);
     noon.setHours(12, 0, 0);
 
     const { latitude, longitude } = this.props.location.coords;
@@ -64,7 +77,8 @@ export default class SunGraph extends Component {
     const snx = dateToX(sn.toDate(), width);
 
     const points = [];
-    const d = new Date(this.props.date);
+    // clone to mutate
+    const d = new Date(date);
     d.setHours(0, 0, 0);
     for(let i = 0; i <= 24; i++) {
       d.setHours(i);
@@ -74,94 +88,119 @@ export default class SunGraph extends Component {
       points.push([x, y]);
     }
 
-    const solarPath = CHEAP_PATH ? pointsToPolyline(points) : controlPointsToBezier(getBSpline(points));
+    const solarPath = pointsToPath(points);
+
+    const progress = (((date.getHours() * 60) + date.getMinutes()) * 60 + date.getSeconds()) / 86400;
 
     return (
       <Svg
-        width={width}
-        height={height}
+        width={width+gutterLeft+gutterRight}
+        height={height+gutterTop+gutterBottom}
       >
-        <Svg.Path
-          id="horizon"
-          d={`M 0 ${height/2} H ${width}`}
-          stroke="#999"
-          fillOpacity="0"
-        />
-        <Svg.Path
-          id="sunpath"
-          d={solarPath}
-          stroke="#88f"
-          fillOpacity="0"
-        />
-        <Svg.Text
-          id="sunalt-text"
-          x={4}
-          y={altToY(sp.altitude, height)}
-          fill="#f80"
-        >{toDeg(sp.altitude).toFixed(1)}°</Svg.Text>
-        <Svg.Text
-          id="sunrise-text"
-          x={srx - 12}
-          y={height/2 + 18}
-          fill="#f80"
+        <Svg.G
+          transform={`translate(${gutterLeft}, ${gutterTop})`}
         >
-          {Math.round(toDeg(srp.azimuth+Math.PI))}°
-          <Svg.TSpan
-            x={srx - 16}
-            dy="1.2em"
+          <Svg.Path
+            id="horizon"
+            d={`M 0 ${height/2} H ${width}`}
+            stroke="#999"
+            fillOpacity="0"
+          />
+          <Svg.Path
+            id="time-markers"
+            d={timeMarkersD}
+            stroke="#999"
+            fillOpacity="0" />
+          <Svg.Path
+            id="sunpath"
+            d={solarPath}
+            stroke="#88f"
+            fillOpacity="0"
+          />
+          <Svg.Text
+            id="sunalt-text"
+            x={0 - gutterLeft}
+            y={altToY(sp.altitude, height) + 6}
             fill="#f80"
-          >{sr.format("HH:mm")}</Svg.TSpan>
-        </Svg.Text>
-        <Svg.Text
-          id="sunset-text"
-          x={ssx - 12}
-          y={height/2 + 18}
-          fill="#f80"
-        >
-          {Math.round(toDeg(ssp.azimuth+Math.PI))}°
-          <Svg.TSpan
-            x={ssx - 16}
-            dy="1.2em"
+          >{toDeg(sp.altitude).toFixed(1)}°</Svg.Text>
+          <Svg.Text
+            id="sunazm-text"
+            x={dateToX(this.props.date, width) - 12}
+            y={12 - gutterTop}
             fill="#f80"
-          >{ss.format("HH:mm")}</Svg.TSpan>
-        </Svg.Text>
-        <Svg.Text
-          id="solarnoon-text"
-          x={snx - 16}
-          y={height/6}
-          fill="#f80"
-        >
-          {sn.format("HH:mm")}
-          <Svg.TSpan
-            x={snx - 44}
-            dy="0.6em"
+          >{Math.round(toDeg(sp.azimuth+Math.PI))}°</Svg.Text>
+          <Svg.Text
+            id="sunrise-text"
+            x={srx - 12}
+            y={height/2 + 18}
             fill="#f80"
-          >{toDeg(snp.altitude).toFixed(1)}°</Svg.TSpan>
-          <Svg.TSpan
-            x={snx - 12}
-            dy="0.6em"
+          >
+            {Math.round(toDeg(srp.azimuth+Math.PI))}°
+            <Svg.TSpan
+              x={srx - 16}
+              dy="1.2em"
+              fill="#f80"
+            >{sr.format("HH:mm")}</Svg.TSpan>
+          </Svg.Text>
+          <Svg.Text
+            id="sunset-text"
+            x={ssx - 12}
+            y={height/2 + 18}
             fill="#f80"
-          >{Math.round(toDeg(snp.azimuth+Math.PI))}°</Svg.TSpan>
-        </Svg.Text>
-        <Svg.Text
-          id="daylength-text"
-          x={width / 2 - 30}
-          y={height - 1}
-          fill="#f80"
-        >{`${dl.hours()}:${padStart(dl.minutes())}:${padStart(dl.seconds())}`}</Svg.Text>
-        <Svg.Path
-          id="daylength-line"
-          d={`M ${srx} ${height - 4} v 4 H ${ssx} v -4`}
-          stroke="#f80"
-          fillOpacity={0}
-        />
-        <Svg.Circle
-          id="sun"
-          cx={dateToX(this.props.date, width)}
-          cy={altToY(sp.altitude, height)}
-          r={5}
-          fill="#f80"
-        />
+          >
+            {Math.round(toDeg(ssp.azimuth+Math.PI))}°
+            <Svg.TSpan
+              x={ssx - 16}
+              dy="1.2em"
+              fill="#f80"
+            >{ss.format("HH:mm")}</Svg.TSpan>
+          </Svg.Text>
+          <Svg.Text
+            id="solarnoon-text"
+            x={snx - 16}
+            y={height/6}
+            fill="#f80"
+          >
+            {sn.format("HH:mm")}
+            <Svg.TSpan
+              id="solarnoon-alt"
+              x={snx - 50}
+              dy="0.6em"
+              fill="#f80"
+            >{toDeg(snp.altitude).toFixed(1)}°</Svg.TSpan>
+            <Svg.TSpan
+              id="solarnoon-azm"
+              x={snx - 12}
+              dy="0.6em"
+              fill="#f80"
+            >{Math.round(toDeg(snp.azimuth+Math.PI))}°</Svg.TSpan>
+          </Svg.Text>
+          <Svg.Text
+            id="daylength-text"
+            x={width / 2 - 30}
+            y={height - 2}
+            fill="#f80"
+          >{`${dl.hours()}:${padStart(dl.minutes())}:${padStart(dl.seconds())}`}</Svg.Text>
+          <Svg.Path
+            id="daylength-line"
+            d={`M ${srx} ${height - 4} v 4 H ${ssx} v -4`}
+            stroke="#f80"
+            fillOpacity={0}
+          />
+          <Svg.Circle
+            id="sun"
+            cx={dateToX(this.props.date, width)}
+            cy={altToY(sp.altitude, height)}
+            r={5}
+            fill="#f80"
+          />
+          <Svg.Text
+            id="day-progress"
+            x={dateToX(this.props.date, width) - 16}
+            y={height + 12}
+            fill="#f80"
+          >{(progress*100).toFixed(1)}%</Svg.Text>
+        </Svg.G>
       </Svg>
     );
   }

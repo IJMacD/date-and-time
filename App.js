@@ -1,11 +1,26 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, AsyncStorage } from 'react-native';
 import moment from 'moment';
 import Expo from 'expo';
 import SunGraph from './SunGraph';
 import MoonChart from './MoonChart';
+import MoonGraph from './MoonGraph';
+import CombinedGraph from './CombinedGraph';
 
 const { Localization } = Expo.DangerZone;
+
+const LOCATION_KEY = "location";
+
+// date/time constants and conversions
+// copied from suncalc.js
+
+var dayMs = 1000 * 60 * 60 * 24,
+    J1970 = 2440588,
+    J2000 = 2451545;
+
+function toJulian(t) { return t / dayMs - 0.5 + J1970; }
+function fromJulian(j)  { return new Date((j + 0.5 - J1970) * dayMs); }
+function toDays(date)   { return toJulian(date) - J2000; }
 
 export default class App extends React.Component {
   constructor (props) {
@@ -31,7 +46,17 @@ export default class App extends React.Component {
     this.visible = true;
     requestAnimationFrame(this.tick);
 
-    navigator.geolocation.getCurrentPosition(loc => this.setState({ loc }));
+    navigator.geolocation.getCurrentPosition(loc => {
+      this.setState({ loc, locLive: true });
+      AsyncStorage.setItem(LOCATION_KEY, JSON.stringify(loc));
+    });
+
+    const savedLocation = await AsyncStorage.getItem(LOCATION_KEY);
+    if (savedLocation) {
+      try {
+        this.setState(oldState => !oldState.locLove && { loc: JSON.parse(savedLocation) });
+      } catch (e) {}
+    }
 
     const tz = await Localization.getCurrentTimeZoneAsync();
     this.setState({ tz });
@@ -56,6 +81,7 @@ export default class App extends React.Component {
             <Text style={styles.utcLabel}>UTC</Text>
             <Text style={styles.utcTime}>{d.toISOString()}</Text>
             <Text style={styles.utcTime}>{d.utc().format("GGGG-[W]WW-E")}</Text>
+            <Text style={styles.utcTime}>{toJulian(this.state.now).toFixed(5)}</Text>
           </View>
           <View style={styles.sun}>
             <Text style={styles.sunLabel}>Sun</Text>
@@ -67,6 +93,13 @@ export default class App extends React.Component {
             <Text style={styles.moonLabel}>Moon</Text>
             <View style={styles.moonProgress}>
               <MoonChart date={new Date(this.state.now)} />
+              <MoonGraph date={new Date(this.state.now)} location={this.state.loc} />
+            </View>
+          </View>
+          <View style={styles.combined}>
+            <Text style={styles.combinedLabel}>Azimuth</Text>
+            <View style={{display:"flex", alignItems:"center"}}>
+              <CombinedGraph date={new Date(this.state.now)} location={this.state.loc} />
             </View>
           </View>
         </View>
@@ -145,5 +178,14 @@ const styles = StyleSheet.create({
   },
   moonProgress: {
     alignItems: 'center',
+  },
+  combined: {
+    backgroundColor: '#fde',
+  },
+  combinedLabel: {
+    color: '#856',
+    fontSize: 12,
+    marginLeft: MARGIN_H_SMALL,
+    marginTop: MARGIN_V_SMALL,
   },
 });
