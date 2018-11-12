@@ -124,18 +124,11 @@ export default class SunGraph extends Component {
             fill="#f80"
           >{toDeg(sp.altitude).toFixed(1)}°</Svg.Text>
           <Svg.Text
-            id="sunazm-text"
-            x={dateToX(this.props.date, width) - 12}
-            y={12 - gutterTop}
-            fill="#f80"
-          >{Math.round(toDeg(sp.azimuth+Math.PI))}°</Svg.Text>
-          <Svg.Text
             id="sunrise-text"
             x={srx - 12}
             y={height/2 + 18}
             fill="#f80"
           >
-            {Math.round(toDeg(srp.azimuth+Math.PI))}°
             <Svg.TSpan
               x={srx - 16}
               dy="1.2em"
@@ -148,7 +141,6 @@ export default class SunGraph extends Component {
             y={height/2 + 18}
             fill="#f80"
           >
-            {Math.round(toDeg(ssp.azimuth+Math.PI))}°
             <Svg.TSpan
               x={ssx - 16}
               dy="1.2em"
@@ -158,22 +150,18 @@ export default class SunGraph extends Component {
           <Svg.Text
             id="solarnoon-text"
             x={snx - 16}
-            y={height/6}
+            y={height/2 + 18}
             fill="#f80"
           >
             {sn.format("HH:mm")}
-            <Svg.TSpan
+          </Svg.Text>
+          <Svg.Text
               id="solarnoon-alt"
-              x={snx - 50}
-              dy="0.6em"
+              x={1}
+              y={altToY(snp.altitude, height) + 6}
               fill="#f80"
-            >{toDeg(snp.altitude).toFixed(1)}°</Svg.TSpan>
-            <Svg.TSpan
-              id="solarnoon-azm"
-              x={snx - 12}
-              dy="0.6em"
-              fill="#f80"
-            >{Math.round(toDeg(snp.azimuth+Math.PI))}°</Svg.TSpan>
+          >
+            {toDeg(snp.altitude).toFixed(1)}°
           </Svg.Text>
           <Svg.Text
             id="daylength-text"
@@ -197,7 +185,7 @@ export default class SunGraph extends Component {
           <Svg.Text
             id="day-progress"
             x={dateToX(this.props.date, width) - 16}
-            y={height + 12}
+            y={12 - gutterTop}
             fill="#f80"
           >{(progress*100).toFixed(1)}%</Svg.Text>
         </Svg.G>

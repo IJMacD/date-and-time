@@ -30,7 +30,7 @@ export default class CombinedGraph extends Component {
     const { date } = this.props;
 
     const gutterLeft = 32;
-    const gutterTop = 12;
+    const gutterTop = 24;
     const gutterRight = 20;
     const gutterBottom = 12;
 
@@ -93,10 +93,12 @@ export default class CombinedGraph extends Component {
     const moonPoints = [];
     // clone to mutate
     const d = new Date(date);
-    d.setHours(0, 0, 0);
+    const t = +d;
+    const delta = (15 * 60 * 1000);
 
-    for(let i = 0; i <= 24; i++) {
-      d.setHours(i);
+    for(let i = -12*4; i <= 12*4; i++) {
+      d.setTime(t + i * delta);
+
       const sp = SunCalc.getPosition(d, latitude, longitude);
       const sy = altToY(sp.altitude, height);
       const sx = azmToX(sp.azimuth, width);
@@ -108,8 +110,8 @@ export default class CombinedGraph extends Component {
       moonPoints.push([mx, my]);
     }
 
-    const solarPath = pointsToPath(sunPoints);
-    const lunarPath = pointsToPath(moonPoints);
+    const solarPath = pointsToPath(sunPoints, 0);
+    const lunarPath = pointsToPath(moonPoints, 0);
 
     // console.log(solarPath);
     // console.log(lunarPath);
@@ -120,6 +122,7 @@ export default class CombinedGraph extends Component {
       <Svg
         width={width+gutterLeft+gutterRight}
         height={height+gutterTop+gutterBottom}
+        viewBox={`0 0 ${width+gutterLeft+gutterRight} ${height+gutterTop+gutterBottom}`}
       >
         <Svg.Defs>
             <Svg.ClipPath id="moon-clip">
@@ -186,6 +189,18 @@ export default class CombinedGraph extends Component {
             stroke="#333"
             fillOpacity="0"
           />
+          <Svg.Text
+            id="sunazm-text"
+            x={azmToX(sp.azimuth, width) - 8}
+            y={24 - gutterTop}
+            fill="#f80"
+          >{Math.round(toDeg(sp.azimuth+Math.PI))}°</Svg.Text>
+          <Svg.Text
+            id="moonazm-text"
+            x={azmToX(mp.azimuth, width) - 8}
+            y={12 - gutterTop}
+            fill="#666"
+          >{Math.round(toDeg(mp.azimuth+Math.PI))}°</Svg.Text>
           <Svg.Circle
             id="sun"
             cx={azmToX(sp.azimuth, width)}
@@ -193,6 +208,44 @@ export default class CombinedGraph extends Component {
             r={5}
             fill="#f80"
           />
+          <Svg.Text
+            id="moonrise-text"
+            x={mrx - 12}
+            y={height/2 + 18}
+            fill="#666"
+          >
+            {Math.round(toDeg(mrp.azimuth+Math.PI))}°
+          </Svg.Text>
+          <Svg.Text
+            id="moonset-text"
+            x={msx - 12}
+            y={height/2 + 18}
+            fill="#666"
+          >
+            {Math.round(toDeg(msp.azimuth+Math.PI))}°
+          </Svg.Text>
+          <Svg.Text
+            id="sunrise-text"
+            x={srx - 12}
+            y={height/2 + 30}
+            fill="#f80"
+          >
+            {Math.round(toDeg(srp.azimuth+Math.PI))}°
+          </Svg.Text>
+          <Svg.Text
+            id="sunset-text"
+            x={ssx - 12}
+            y={height/2 + 30}
+            fill="#f80"
+          >
+            {Math.round(toDeg(ssp.azimuth+Math.PI))}°
+          </Svg.Text>
+          <Svg.Text
+            id="solarnoon-text"
+            x={snx - 12}
+            y={height/2 + 30}
+            fill="#f80"
+          >{Math.round(toDeg(snp.azimuth+Math.PI))}°</Svg.Text>
           <Svg.G
             id="moon-shade"
             clipPath="url(#moon-clip)"

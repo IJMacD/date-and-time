@@ -6,6 +6,9 @@ import SunGraph from './SunGraph';
 import MoonChart from './MoonChart';
 import MoonGraph from './MoonGraph';
 import CombinedGraph from './CombinedGraph';
+import WorldMap from './WorldMap';
+
+import SunCalc from './suncalc';
 
 const { Localization } = Expo.DangerZone;
 
@@ -51,15 +54,15 @@ export default class App extends React.Component {
       AsyncStorage.setItem(LOCATION_KEY, JSON.stringify(loc));
     });
 
+    const tz = await Localization.getCurrentTimeZoneAsync();
+    this.setState({ tz });
+
     const savedLocation = await AsyncStorage.getItem(LOCATION_KEY);
     if (savedLocation) {
       try {
         this.setState(oldState => !oldState.locLove && { loc: JSON.parse(savedLocation) });
       } catch (e) {}
     }
-
-    const tz = await Localization.getCurrentTimeZoneAsync();
-    this.setState({ tz });
   }
 
   componentWillUnmount () {
@@ -68,6 +71,7 @@ export default class App extends React.Component {
 
   render() {
     const d = moment(this.state.now);
+    const date = d.toDate();
 
     return (
       <ScrollView>
@@ -86,21 +90,27 @@ export default class App extends React.Component {
           <View style={styles.sun}>
             <Text style={styles.sunLabel}>Sun</Text>
             <View style={{display:"flex", alignItems:"center"}}>
-              <SunGraph date={new Date(this.state.now)} location={this.state.loc} />
+              <SunGraph date={date} location={this.state.loc} />
             </View>
           </View>
           <View style={styles.moon}>
             <Text style={styles.moonLabel}>Moon</Text>
             <View style={styles.moonProgress}>
-              <MoonChart date={new Date(this.state.now)} />
-              <MoonGraph date={new Date(this.state.now)} location={this.state.loc} />
+              <MoonChart date={date} />
+              <MoonGraph date={date} location={this.state.loc} />
             </View>
           </View>
           <View style={styles.combined}>
             <Text style={styles.combinedLabel}>Azimuth</Text>
             <View style={{display:"flex", alignItems:"center"}}>
-              <CombinedGraph date={new Date(this.state.now)} location={this.state.loc} />
+              <CombinedGraph date={date} location={this.state.loc} />
             </View>
+          </View>
+        </View>
+        <View style={styles.position}>
+          <Text style={styles.positionLabel}>Position</Text>
+          <View style={{display:"flex", alignItems:"center"}}>
+            <WorldMap date={date} />
           </View>
         </View>
       </ScrollView>
@@ -188,4 +198,13 @@ const styles = StyleSheet.create({
     marginLeft: MARGIN_H_SMALL,
     marginTop: MARGIN_V_SMALL,
   },
+  position: {
+    backgroundColor: "#cc9",
+  },
+  positionLabel: {
+    color: '#668',
+    fontSize: 12,
+    marginLeft: MARGIN_H_SMALL,
+    marginTop: MARGIN_V_SMALL,
+  }
 });

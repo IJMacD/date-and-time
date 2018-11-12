@@ -28,8 +28,16 @@ export function pointsToPath (points, detail = PATH_DETAIL) {
 export function pointsToPolyline (points) {
   const out = [`M ${points[0][0]} ${points[0][1]}`];
 
+  let prevDelta = 0;
+
   for (let i = 1; i< points.length; i++) {
-    out.push(`L ${points[i][0]} ${points[i][1]}`);
+    const newDelta = Math.sqrt(
+      Math.pow(points[i][0] - points[i-1][0], 2) +
+      Math.pow(points[i][1] - points[i-1][1], 2)
+    );
+    const c = prevDelta && newDelta > 5 * prevDelta ? 'M' : 'L';
+    out.push(`${c} ${points[i][0]} ${points[i][1]}`);
+    prevDelta = newDelta;
   }
 
   return out.join(" ");

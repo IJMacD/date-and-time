@@ -128,18 +128,11 @@ export default class SunGraph extends Component {
             fill="#666"
           >{toDeg(mp.altitude).toFixed(1)}°</Svg.Text>
           <Svg.Text
-            id="moonazm-text"
-            x={dateToX(this.props.date, width) - 12}
-            y={12 - gutterTop}
-            fill="#666"
-          >{Math.round(toDeg(mp.azimuth+Math.PI))}°</Svg.Text>
-          <Svg.Text
             id="moonrise-text"
             x={mrx - 12}
             y={height/2 + 18}
             fill="#666"
           >
-            {Math.round(toDeg(mrp.azimuth+Math.PI))}°
             <Svg.TSpan
               x={mrx - 16}
               dy="1.2em"
@@ -152,7 +145,6 @@ export default class SunGraph extends Component {
             y={height/2 + 18}
             fill="#666"
           >
-            {Math.round(toDeg(msp.azimuth+Math.PI))}°
             <Svg.TSpan
               x={msx - 16}
               dy="1.2em"
