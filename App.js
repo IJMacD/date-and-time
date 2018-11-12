@@ -1,16 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, AsyncStorage } from 'react-native';
 import moment from 'moment';
-import Expo from 'expo';
 import SunGraph from './SunGraph';
 import MoonChart from './MoonChart';
 import MoonGraph from './MoonGraph';
 import CombinedGraph from './CombinedGraph';
 import WorldMap from './WorldMap';
-
-import SunCalc from './suncalc';
-
-const { Localization } = Expo.DangerZone;
+import { Location } from 'expo';
+import { Localization } from 'expo-localization';
 
 const LOCATION_KEY = "location";
 
@@ -31,8 +28,7 @@ export default class App extends React.Component {
 
     this.state = {
       now: Date.now(),
-      tz: null,
-      loc: null,
+      location: null,
     };
 
     this.tick = this.tick.bind(this);
@@ -49,20 +45,21 @@ export default class App extends React.Component {
     this.visible = true;
     requestAnimationFrame(this.tick);
 
-    navigator.geolocation.getCurrentPosition(loc => {
-      this.setState({ loc, locLive: true });
-      AsyncStorage.setItem(LOCATION_KEY, JSON.stringify(loc));
+    Location.getCurrentPositionAsync({ enableHighAccuracy: false }).then(location => {
+      console.log("Live Location");
+      this.setState({ location });
+      AsyncStorage.setItem(LOCATION_KEY, JSON.stringify(location));
     });
 
-    const tz = await Localization.getCurrentTimeZoneAsync();
-    this.setState({ tz });
-
-    const savedLocation = await AsyncStorage.getItem(LOCATION_KEY);
-    if (savedLocation) {
-      try {
-        this.setState(oldState => !oldState.locLove && { loc: JSON.parse(savedLocation) });
-      } catch (e) {}
-    }
+    AsyncStorage.getItem(LOCATION_KEY).then(savedLocation => {
+      if (!this.state.location && savedLocation) {
+        console.log("Saved Location (used)");
+        try {
+          this.setState({ location: JSON.parse(savedLocation) });
+        } catch (e) {}
+      }
+      else console.log("Saved Location (too late)");
+    });
   }
 
   componentWillUnmount () {
@@ -79,7 +76,7 @@ export default class App extends React.Component {
           <View style={styles.local}>
             <Text style={styles.localTime}>{d.format("Y-MM-DD")}</Text>
             <Text style={styles.localTime}>{d.format("HH:mm:ss")}</Text>
-            <Text style={styles.localZone}>{`${this.state.tz} ${d.format("Z")}`}</Text>
+            <Text style={styles.localZone}>{`${Localization.timezone} ${d.format("Z")}`}</Text>
           </View>
           <View style={styles.utc}>
             <Text style={styles.utcLabel}>UTC</Text>
@@ -90,20 +87,20 @@ export default class App extends React.Component {
           <View style={styles.sun}>
             <Text style={styles.sunLabel}>Sun</Text>
             <View style={{display:"flex", alignItems:"center"}}>
-              <SunGraph date={date} location={this.state.loc} />
+              <SunGraph date={date} location={this.state.location} />
             </View>
           </View>
           <View style={styles.moon}>
             <Text style={styles.moonLabel}>Moon</Text>
             <View style={styles.moonProgress}>
               <MoonChart date={date} />
-              <MoonGraph date={date} location={this.state.loc} />
+              <MoonGraph date={date} location={this.state.location} />
             </View>
           </View>
           <View style={styles.combined}>
             <Text style={styles.combinedLabel}>Azimuth</Text>
             <View style={{display:"flex", alignItems:"center"}}>
-              <CombinedGraph date={date} location={this.state.loc} />
+              <CombinedGraph date={date} location={this.state.location} />
             </View>
           </View>
         </View>
