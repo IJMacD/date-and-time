@@ -37,25 +37,7 @@ export default class CombinedGraph extends Component {
     const degreeMarkersD = Array(9).fill(0).map((x,i) => `M ${i/8 * width} ${height/2} v 4`).join(" ");
 
     if (!this.props.location) {
-      return (
-        <Svg
-          width={width+gutterLeft+gutterRight}
-          height={height+gutterTop+gutterBottom}
-        >
-          <Svg.Path
-            id="horizon"
-            d={`M ${gutterLeft} ${height/2+gutterTop} h ${width}`}
-            stroke="#999"
-            fillOpacity="0"
-          />
-          <Svg.Path
-            id="degree-markers"
-            d={degreeMarkersD}
-            stroke="#999"
-            fillOpacity="0"
-            transform={`translate(${gutterLeft}, ${gutterTop})`} />
-        </Svg>
-      );
+      return false;
     }
 
     // clone to mutate

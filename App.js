@@ -46,19 +46,16 @@ export default class App extends React.Component {
     requestAnimationFrame(this.tick);
 
     Location.getCurrentPositionAsync({ enableHighAccuracy: false }).then(location => {
-      console.log("Live Location");
       this.setState({ location });
       AsyncStorage.setItem(LOCATION_KEY, JSON.stringify(location));
     });
 
     AsyncStorage.getItem(LOCATION_KEY).then(savedLocation => {
-      if (!this.state.location && savedLocation) {
-        console.log("Saved Location (used)");
+      if (savedLocation) {
         try {
-          this.setState({ location: JSON.parse(savedLocation) });
+          this.setState(prevState => !prevState.location && { location: JSON.parse(savedLocation) });
         } catch (e) {}
       }
-      else console.log("Saved Location (too late)");
     });
   }
 
