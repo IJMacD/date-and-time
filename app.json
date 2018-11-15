@@ -9,7 +9,7 @@
       "ios",
       "android"
     ],
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -28,7 +28,8 @@
     },
     "githubUrl": "https://github.com/IJMacD/date-and-time",
     "android": {
-      "package": "com.ijmacd.dateandtime"
+      "package": "com.ijmacd.dateandtime",
+      "versionCode": 2
     }
   }
 }

@@ -30,7 +30,7 @@ export default class SunGraph extends Component {
 
     const gutterLeft = 32;
     const gutterTop = 12;
-    const gutterRight = 20;
+    const gutterRight = 28;
     const gutterBottom = 12;
 
     const timeMarkersD = Array(25).fill(0).map((x,i) => `M ${i/24 * width} ${height/2} v 4`).join(" ");
@@ -94,6 +94,18 @@ export default class SunGraph extends Component {
             stroke="#999"
             fillOpacity="0" />
           <Svg.Path
+            id="solarnoon-indicator"
+            d={`M ${snx} ${height/2+4} V ${altToY(snp.altitude, height)} H ${width}`}
+            stroke="rgba(255,128,0,0.3)"
+            fillOpacity={0}
+          />
+          <Svg.Path
+            id="solar-position-indicator"
+            d={`M 0 ${altToY(sp.altitude, height)} H ${dateToX(this.props.date, width)} V 1`}
+            stroke="rgba(255,192,0,0.3)"
+            fillOpacity={0}
+          />
+          <Svg.Path
             id="sunpath"
             d={solarPath}
             stroke="#88f"
@@ -102,7 +114,7 @@ export default class SunGraph extends Component {
           <Svg.Text
             id="sunalt-text"
             x={0 - gutterLeft}
-            y={altToY(sp.altitude, height) + 6}
+            y={altToY(sp.altitude, height) + 3}
             fill="#f80"
           >{toDeg(sp.altitude).toFixed(1)}°</Svg.Text>
           <Svg.Text
@@ -131,7 +143,7 @@ export default class SunGraph extends Component {
           </Svg.Text>
           <Svg.Text
             id="solarnoon-text"
-            x={snx - 16}
+            x={snx - 15}
             y={height/2 + 18}
             fill="#f80"
           >
@@ -139,8 +151,8 @@ export default class SunGraph extends Component {
           </Svg.Text>
           <Svg.Text
               id="solarnoon-alt"
-              x={1}
-              y={altToY(snp.altitude, height) + 6}
+              x={width}
+              y={altToY(snp.altitude, height) + 3}
               fill="#f80"
           >
             {toDeg(snp.altitude).toFixed(1)}°
@@ -166,7 +178,7 @@ export default class SunGraph extends Component {
           />
           <Svg.Text
             id="day-progress"
-            x={dateToX(this.props.date, width) - 16}
+            x={dateToX(this.props.date, width) - 15}
             y={12 - gutterTop}
             fill="#f80"
           >{(progress*100).toFixed(1)}%</Svg.Text>

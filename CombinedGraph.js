@@ -64,11 +64,11 @@ export default class CombinedGraph extends Component {
     const ms = moment(set);
     const ml = moment.duration(ms.diff(mr));
     const mp = SunCalc.getMoonPosition(this.props.date, latitude, longitude);
-    const mrp = SunCalc.getMoonPosition(rise, latitude, longitude);
-    const msp = SunCalc.getMoonPosition(set, latitude, longitude);
+    const mrp = rise && SunCalc.getMoonPosition(rise, latitude, longitude);
+    const msp = set && SunCalc.getMoonPosition(set, latitude, longitude);
 
-    const mrx = azmToX(mrp.azimuth, width);
-    const msx = azmToX(msp.azimuth, width);
+    const mrx = mrp && azmToX(mrp.azimuth, width);
+    const msx = msp && azmToX(msp.azimuth, width);
     const { phase, angle } = SunCalc.getMoonIllumination(this.props.date);
 
     const sunPoints = [];
@@ -190,22 +190,26 @@ export default class CombinedGraph extends Component {
             r={5}
             fill="#f80"
           />
-          <Svg.Text
-            id="moonrise-text"
-            x={mrx - 12}
-            y={height/2 + 18}
-            fill="#666"
-          >
-            {Math.round(toDeg(mrp.azimuth+Math.PI))}°
-          </Svg.Text>
-          <Svg.Text
-            id="moonset-text"
-            x={msx - 12}
-            y={height/2 + 18}
-            fill="#666"
-          >
-            {Math.round(toDeg(msp.azimuth+Math.PI))}°
-          </Svg.Text>
+          { rise &&
+            <Svg.Text
+              id="moonrise-text"
+              x={mrx - 12}
+              y={height/2 + 18}
+              fill="#666"
+            >
+              {Math.round(toDeg(mrp.azimuth+Math.PI))}°
+            </Svg.Text>
+          }
+          { set &&
+            <Svg.Text
+              id="moonset-text"
+              x={msx - 12}
+              y={height/2 + 18}
+              fill="#666"
+            >
+              {Math.round(toDeg(msp.azimuth+Math.PI))}°
+            </Svg.Text>
+          }
           <Svg.Text
             id="sunrise-text"
             x={srx - 12}

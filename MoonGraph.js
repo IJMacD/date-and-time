@@ -43,15 +43,15 @@ export default class SunGraph extends Component {
 
     const { latitude, longitude } = this.props.location.coords;
     const { rise, set } = SunCalc.getMoonTimes(noon, latitude, longitude);
-    const mr = moment(rise);
-    const ms = moment(set);
-    const ml = moment.duration(ms.diff(mr));
+    const mr = rise && moment(rise);
+    const ms = set && moment(set);
+    const ml = mr && ms && moment.duration(ms.diff(mr));
     const mp = SunCalc.getMoonPosition(this.props.date, latitude, longitude);
-    const mrp = SunCalc.getMoonPosition(rise, latitude, longitude);
-    const msp = SunCalc.getMoonPosition(set, latitude, longitude);
+    // const mrp = SunCalc.getMoonPosition(rise, latitude, longitude);
+    // const msp = SunCalc.getMoonPosition(set, latitude, longitude);
 
-    const mrx = dateToX(mr.toDate(), width);
-    const msx = dateToX(ms.toDate(), width);
+    const mrx = mr && dateToX(mr.toDate(), width);
+    const msx = ms && dateToX(ms.toDate(), width);
     const { phase, angle } = SunCalc.getMoonIllumination(this.props.date);
 
     const points = [];
@@ -67,7 +67,7 @@ export default class SunGraph extends Component {
 
     const lunarPath = pointsToPath(points);
 
-    const moonInvert = ms < mr;
+    const moonInvert = ms && mr && ms < mr;
 
     return (
       <Svg
@@ -109,30 +109,34 @@ export default class SunGraph extends Component {
             y={altToY(mp.altitude, height) + 6}
             fill="#666"
           >{toDeg(mp.altitude).toFixed(1)}°</Svg.Text>
-          <Svg.Text
-            id="moonrise-text"
-            x={mrx - 12}
-            y={height/2 + 18}
-            fill="#666"
-          >
-            <Svg.TSpan
-              x={mrx - 16}
-              dy="1.2em"
+          { mrx &&
+            <Svg.Text
+              id="moonrise-text"
+              x={mrx - 12}
+              y={height/2 + 18}
               fill="#666"
-            >{mr.format("HH:mm")}</Svg.TSpan>
-          </Svg.Text>
-          <Svg.Text
-            id="moonset-text"
-            x={msx - 12}
-            y={height/2 + 18}
-            fill="#666"
-          >
-            <Svg.TSpan
-              x={msx - 16}
-              dy="1.2em"
+            >
+              <Svg.TSpan
+                x={mrx - 16}
+                dy="1.2em"
+                fill="#666"
+              >{mr.format("HH:mm")}</Svg.TSpan>
+            </Svg.Text>
+          }
+          { msx &&
+            <Svg.Text
+              id="moonset-text"
+              x={msx - 12}
+              y={height/2 + 18}
               fill="#666"
-            >{ms.format("HH:mm")}</Svg.TSpan>
-          </Svg.Text>
+            >
+              <Svg.TSpan
+                x={msx - 16}
+                dy="1.2em"
+                fill="#666"
+              >{ms.format("HH:mm")}</Svg.TSpan>
+            </Svg.Text>
+          }
           { moonInvert ?
             <Fragment>
               <Svg.Path
@@ -143,26 +147,27 @@ export default class SunGraph extends Component {
               />
               <Svg.Path
                 id="moonlength-line2"
-                d={`M 0 ${height - 4} v 4 H ${msx} v -4`}
+                d={`M 0 ${height} H ${msx} v -4`}
                 stroke="#666"
                 fillOpacity={0}
               />
             </Fragment>
             :
-            <Fragment>
-              <Svg.Text
-                id="moonlength-text"
-                x={(mrx + msx) / 2 - 30}
-                y={height - 2}
-                fill="#666"
-              >{`${ml.hours()}:${padStart(ml.minutes())}:${padStart(ml.seconds())}`}</Svg.Text>
-              <Svg.Path
-                id="moonlength-line"
-                d={`M ${mrx} ${height - 4} v 4 H ${msx} v -4`}
-                stroke="#666"
-                fillOpacity={0}
-              />
-            </Fragment>
+            mrx && msx &&
+              <Fragment>
+                <Svg.Text
+                  id="moonlength-text"
+                  x={(mrx + msx) / 2 - 30}
+                  y={height - 2}
+                  fill="#666"
+                >{`${ml.hours()}:${padStart(ml.minutes())}:${padStart(ml.seconds())}`}</Svg.Text>
+                <Svg.Path
+                  id="moonlength-line"
+                  d={`M ${mrx} ${height - 4} v 4 H ${msx} v -4`}
+                  stroke="#666"
+                  fillOpacity={0}
+                />
+              </Fragment>
           }
           <Svg.Circle
             id="moon"
