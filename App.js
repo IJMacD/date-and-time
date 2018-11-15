@@ -104,7 +104,7 @@ export default class App extends React.Component {
         <View style={styles.position}>
           <Text style={styles.positionLabel}>Position</Text>
           <View style={{display:"flex", alignItems:"center"}}>
-            <WorldMap date={date} />
+            <WorldMap date={date} location={this.state.location} />
           </View>
         </View>
       </ScrollView>
@@ -193,10 +193,10 @@ const styles = StyleSheet.create({
     marginTop: MARGIN_V_SMALL,
   },
   position: {
-    backgroundColor: "#cc9",
+    backgroundColor: "#def",
   },
   positionLabel: {
-    color: '#668',
+    color: '#448',
     fontSize: 12,
     marginLeft: MARGIN_H_SMALL,
     marginTop: MARGIN_V_SMALL,

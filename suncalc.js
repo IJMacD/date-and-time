@@ -79,8 +79,9 @@ function sunCoords(d) {
 var SunCalc = {};
 
 SunCalc.getGeographicalPosition = function (date) {
+    // https://astronomy.stackexchange.com/a/20589
+    // https://www.celnav.de/longterm.htm
     var d = toDays(date),
-
         c = sunCoords(d),
 
         ra_h = c.ra * 12 / PI,
@@ -91,14 +92,13 @@ SunCalc.getGeographicalPosition = function (date) {
         gha = (sha + gha_aries) % (PI * 2);
 
     return {
-        lat: c.dec,
-        lon: -gha
+        lat: c.dec / rad,
+        lon: (-(gha + PI) % (2 * PI) + PI) / rad
     };
 }
 
 SunCalc.getMoonGeographicalPosition = function (date) {
     var d = toDays(date),
-
         c = moonCoords(d),
 
         ra_h = c.ra * 12 / PI,
@@ -109,8 +109,8 @@ SunCalc.getMoonGeographicalPosition = function (date) {
         gha = (sha + gha_aries) % (PI * 2);
 
     return {
-        lat: c.dec,
-        lon: PI * 2 - gha
+        lat: c.dec / rad,
+        lon: (-(gha + PI) % (2 * PI) + PI) / rad
     };
 }
 
